@@ -31,13 +31,4 @@ public class UserController {
         return "redirect:/api/user-login";
     } //회원가입
 
-    @PostMapping("/user/login")
-    public String login(LoginRequestDto requestDto, HttpServletResponse res) {
-        try {
-            service.login(requestDto, res);
-        } catch (Exception e) {
-            return "redirect:/api/user/login-page?error";
-        }
-        return "redirect:/";
-    }
 }
