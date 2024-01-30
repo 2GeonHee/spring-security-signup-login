@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -16,6 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity // Spring Security 지원을 가능하게 함
+@EnableGlobalMethodSecurity(securedEnabled = true)
 public class WebSecurityConfig {
 
     private final JwtUtil jwtUtil;
@@ -62,11 +64,7 @@ public class WebSecurityConfig {
         // 로그인 사용
         http.formLogin((forLogin)->
             forLogin
-                    .loginPage("/api/user/login-page") //커스텀한 로그인페이지
-                    .loginProcessingUrl("/api/user/login") //스프링 세큐리티 내부 로그인 처리
-                    .defaultSuccessUrl("/") //로그인 처리 성공시 url
-                    .failureUrl("/api/user/ligun?error") // 로스인 실패시
-                    .permitAll()
+                    .loginPage("/api/user/login-page").permitAll()
         );
 
         // 필터 관리
