@@ -26,26 +26,29 @@ public class JwtUtil {
     public static final String AUTHORIZATION_HEADER = "Authorization";
     // 사용자 권한 값의 KEY
     public static final String AUTHORIZATION_KEY = "auth";
-    // Token 식별자
+    // Token 식별자, value 앞에 붙이는데 한칸 띈다.
     public static final String BEARER_PREFIX = "Bearer ";
     // 토큰 만료시간
-    private final long TOKEN_TIME = 60 * 60 * 1000L; // 60분
+    private final long TOKEN_TIME = 1000L * 60 * 60 * 24 * 3; // 3일
 
+    //beans.factory, @Value("${키값}")
     @Value("${jwt.secret.key}") // Base64 Encode 한 SecretKey
     private String secretKey;
     private Key key;
     private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 
     // 로그 설정
+    // 다른방법 : 클레스 위 @Slf4j
+    // 로깅 : 애플리케이션 동작하는 동안 프로젝트 상태나 동작정보를 시간순으로 기록한다
     public static final Logger logger = LoggerFactory.getLogger("JWT 관련 로그");
 
-    @PostConstruct
+    @PostConstruct // 딱 한번만 받아오면 되는 값을 사용할때마다 요청을 새로 호출할 수 있는 상황을 방지
     public void init() {
         byte[] bytes = Base64.getDecoder().decode(secretKey);
         key = Keys.hmacShaKeyFor(bytes);
     }
 
-    // 토큰 생성
+    //JWT 토큰 생성
     public String createToken(String username, UserEnum role) {
         Date date = new Date();
 
@@ -59,7 +62,8 @@ public class JwtUtil {
                         .compact();
     }
 
-    // JWT Cookie 에 저장
+
+    //생성된 JWT를 Cookie에 저장
     public void addJwtToCookie(String token, HttpServletResponse res) {
         try {
             token = URLEncoder.encode(token, "utf-8").replaceAll("\\+", "%20"); // Cookie Value 에는 공백이 불가능해서 encoding 진행
@@ -74,16 +78,18 @@ public class JwtUtil {
         }
     }
 
+    //Cookie에 들어있던 JWT 토큰을 Substring
     // JWT 토큰 substring
     public String substringToken(String tokenValue) {
+        // StringUtils.hasText: 공백인지 Null인지 확인, tokenValue.startsWith: 시작이 ()인지 아닌지 확인
         if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX)) {
-            return tokenValue.substring(7);
+            return tokenValue.substring(7); // bearer+공백 : 7자리 잘라내 순수 토큰값만 반환
         }
         logger.error("Not Found Token");
         throw new NullPointerException("Not Found Token");
     }
 
-    // 토큰 검증
+    //JWT 검증
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
@@ -100,7 +106,7 @@ public class JwtUtil {
         return false;
     }
 
-    // 토큰에서 사용자 정보 가져오기
+    //JWT에서 사용자 정보 가져오기
     public Claims getUserInfoFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
@@ -121,4 +127,5 @@ public class JwtUtil {
         }
         return null;
     }
+
 }

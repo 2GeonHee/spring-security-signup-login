@@ -20,7 +20,6 @@ import java.net.URLEncoder;
 @RequiredArgsConstructor // private final JwtUtil jwtUtil; 의 생성자가 없을때 사용
 @RequestMapping("/api")
 public class AuthController {
-
     private final JwtUtil jwtUtil;
 
     public static final String AUTHORIZATION_HEADER = "Authorization";

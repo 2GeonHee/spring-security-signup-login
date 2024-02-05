@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/api")
 public class ProductController {
-//jwt 검증
     @GetMapping("/products")
     public String getProducts(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        // Authentication 의 Principle
         User user = userDetails.getUser();
         System.out.println("user.getUsername() = " + user.getUsername());
+
         return "redirect:/";
     }
-
     @Secured(UserEnum.Authority.ADMIN) // 관리자용
     @GetMapping("/products/secured")
     public String getProductsByAdmin(@AuthenticationPrincipal UserDetailsImpl userDetails) {
